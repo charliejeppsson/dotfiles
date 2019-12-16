@@ -1,0 +1,126 @@
+set encoding=utf-8
+set nocompatible
+
+" set the runtime path to include Vundle and initialize
+call plug#begin('~/.vim/plugged')
+
+" Plugins go here
+
+Plug 'nanotech/jellybeans.vim' " Jellybeans colorscheme
+Plug 'ctrlpvim/ctrlp.vim' " Fuzzy finder
+Plug 'tpope/vim-commentary' " Commenting out text
+Plug 'tpope/vim-rails' " Bunch of handy Rails functionality
+Plug 'tpope/vim-surround' " Work with surrounding ], ), } etc
+Plug 'vim-ruby/vim-ruby' " Custom ruby stuff
+Plug 'pangloss/vim-javascript' " JS syntax highlighting and indentation
+Plug 'maxmellon/vim-jsx-pretty' " JSX/React syntax highlighting
+Plug 'dense-analysis/ale' " Lint engine
+Plug 'alvan/vim-closetag' " Auto-close HTML/XHTML tags
+
+" All plugins must be added before the following line
+call plug#end()
+
+filetype on           " Enable filetype detection
+filetype indent on    " Enable filetype-specific indenting
+filetype plugin on    " Enable filetype-specific plugins
+
+colorscheme jellybeans
+
+if v:progname =~? "evim"
+  finish
+endif
+
+" source $VIMRUNTIME/defaults.vim " Get the defaults that most users want
+
+syntax on " Enable syntax highlighting
+
+set backspace=2      " Backspace deletes like most programs in insert mode
+set nobackup         " No backup files (annoying)
+set nowritebackup
+set noswapfile       " No swap files (annoying)
+set history=50
+set ruler            " show the cursor position all the time
+set showcmd          " display incomplete commands
+set incsearch        " do incremental searching
+set laststatus=2     " Always display the status line
+set autowrite        " Automatically :write before running commands
+set formatoptions-=t " Don't auto-break long lines (re-enable this for prose)
+
+" Make it obvious where 80 characters is
+set textwidth=80
+set colorcolumn=+1
+
+" Numbers
+set number " Show line numbers
+set numberwidth=5
+
+" Indent with 2 spaces
+set tabstop=2
+set shiftwidth=2
+set shiftround
+set expandtab
+
+" Auto-indent on new line
+set autoindent
+
+" Force vim navigationn
+nnoremap <Left> :echoe "Use h"<CR>
+nnoremap <Right> :echoe "Use l"<CR>
+nnoremap <Up> :echoe "Use k"<CR>
+nnoremap <Down> :echoe "Use j"<CR>
+
+" Open new split panes to right and bottom, which feels more natural
+set splitbelow
+set splitright
+
+" Quicker window movement
+nnoremap <C-j> <C-w>j
+nnoremap <C-k> <C-w>k
+nnoremap <C-h> <C-w>h
+nnoremap <C-l> <C-w>l
+
+" Use The Silver Searcher https://github.com/ggreer/the_silver_searcher
+if executable('ag')
+  " Use Ag over Grep
+  set grepprg=ag\ --nogroup\ --nocolor
+  " Use ag (silver searcher) with ctrlp. Faster and no useless files.
+  let g:ctrlp_user_command = 'ag %s -l --hidden --nocolor -g ""'
+  let g:ctrlp_use_caching = 0
+
+  if !exists(":Ag")
+    command -nargs=+ -complete=file -bar Ag silent! grep! <args>|cwindow|redraw!
+    nnoremap \ :Ag<SPACE>
+  endif
+endif
+
+" Javascript linting
+let g:jsx_ext_required = 0
+let g:ale_linters = {
+\   'javascript': ['eslint'],
+\}
+let g:ale_fixers = {
+\   'javascript': ['prettier', 'eslint'],
+\   '*': ['remove_trailing_lines', 'trim_whitespace'],
+\}
+let g:ale_sign_error = '✘'
+let g:ale_sign_warning = '⚠'
+let g:ale_lint_on_enter = 0
+let g:ale_lint_on_text_changed = 'never'
+highlight ALEErrorSign ctermbg=NONE ctermfg=red
+highlight ALEWarningSign ctermbg=NONE ctermfg=yellow
+let g:ale_linters_explicit = 1
+let g:ale_lint_on_save = 1
+let g:ale_fix_on_save = 1
+let g:ale_javascript_prettier_options = '--no-semi --single-quote --trailing-comma none'
+
+let g:closetag_filenames = '*.html,*.jsx,*.xhtml,*.phtml' " For vim-closetag
+
+" Add optional packages.
+"
+" The matchit plugin makes the % command work better, but it is not backwards
+" compatible.
+" The ! means the package won't be loaded right away but when plugins are
+" loaded during initialization.
+if has('syntax') && has('eval')
+  packadd! matchit
+endif
